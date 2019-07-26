@@ -10,8 +10,27 @@ JbParserTest >> parserClass [
 	^JbParser
 ]
 
+{ #category : #running }
+JbParserTest >> testAnonymousFunctionDefinitionWithAssignment [
+	| func |
+	func := self parse: 'function () {x = 22;}' rule: #anonymousFunction.
+	self assert: func name isNil.
+	self assert: func body notEmpty.
+	self assert: func body first identifier equals: #x
+]
+
 { #category : #tests }
 JbParserTest >> testAssignmentStatement [
+
+	self assert: (self parse: 'x = 33;')
+		first identifier equals: #x.
+	self assert: (self parse: 'x = 33;')
+		first expression value equals: 33.
+
+]
+
+{ #category : #tests }
+JbParserTest >> testAssignmentStatementSequence [
 
 	| res |
 	res := self parse: 'x = 33;y=-19;'.
@@ -26,6 +45,14 @@ JbParserTest >> testAssignmentStatement [
 	self assert: res second identifier equals: #zebra.
 	self assert: res second expression value equals: -1232.112.
 
+]
+
+{ #category : #running }
+JbParserTest >> testComparisonExpression [
+
+	| exp |
+	exp := self parse: 'falaffel == 1' rule: #expression.
+	self assert: exp first identifier equals: #falaffel
 ]
 
 { #category : #running }
@@ -50,12 +77,35 @@ JbParserTest >> testEmptyFunctionDefinition [
 	self assert: function name equals: #zebra.
 ]
 
-{ #category : #tests }
-JbParserTest >> testStatementSequence [
+{ #category : #running }
+JbParserTest >> testFunctionDefinitionWithAssignment [
+	| function |
+	function := self parse: 'function f() {x = 22;}'.
+	self assert: function notNil.
+	self assert: function name equals: #f.
+	self assert: function body first identifier equals: #x.
+	self assert: function body first expression value equals: 22
+]
 
-	self assert: (self parse: 'x = 33;')
-		first identifier equals: #x.
-	self assert: (self parse: 'x = 33;')
-		first expression value equals: 33.
+{ #category : #running }
+JbParserTest >> testIfStatement [
 
+	| stmt |
+	stmt := self parse: 'if (x == 1) {y = 2;} {y=3;}' rule: #ifStatement
+]
+
+{ #category : #running }
+JbParserTest >> testReturnStatement [
+	| func |
+	func := self parse: 'return 37' rule: #returnStatement.
+	self assert: func expression value equals: 37
+]
+
+{ #category : #running }
+JbParserTest >> testVariableDeclaration [
+
+	| d |
+	d := self parse: 'var x = 0' rule: #variableDeclaration.
+	self assert: d identifier equals: #x.
+	self assert: d expression value equals: 0
 ]

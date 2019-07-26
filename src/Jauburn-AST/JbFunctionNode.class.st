@@ -2,10 +2,21 @@ Class {
 	#name : #JbFunctionNode,
 	#superclass : #Object,
 	#instVars : [
-		'name'
+		'name',
+		'body'
 	],
 	#category : #'Jauburn-AST'
 }
+
+{ #category : #accessing }
+JbFunctionNode >> body [
+	^ body
+]
+
+{ #category : #accessing }
+JbFunctionNode >> body: anObject [
+	body := anObject
+]
 
 { #category : #accessing }
 JbFunctionNode >> name [

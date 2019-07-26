@@ -13,12 +13,27 @@ Class {
 		'statement',
 		'assignmentStatement',
 		'number',
-		'positiveNumber',
-		'negativeNumber',
-		'constantExpression'
+		'constantExpression',
+		'anonymousFunction',
+		'variableDeclaration',
+		'returnStatement',
+		'ifStatement',
+		'identifierExpression',
+		'comparisonExpression'
 	],
 	#category : #'Jauburn-Parser'
 }
+
+{ #category : #functions }
+JbParser >> anonymousFunction [
+
+	^('function' asParser trim 
+	, $( asParser trim , $) asParser trim
+	, ${ asParser trim 
+	, statement star
+	, $} asParser trim) ==> 
+					[:t | JbFunctionNode new name: nil; body: t fifth; yourself]
+]
 
 { #category : #statements }
 JbParser >> assignmentStatement [
@@ -32,6 +47,15 @@ JbParser >> assignmentStatement [
 ]
 
 { #category : #expressions }
+JbParser >> comparisonExpression [
+	"placeholder!"
+	
+	^identifierExpression
+	, '==' asParser trim 
+	, number
+]
+
+{ #category : #expressions }
 JbParser >> constantExpression [
 
 	^number ==> [ :n | JbConstantExpression new value: n; yourself ]
@@ -40,17 +64,19 @@ JbParser >> constantExpression [
 { #category : #expressions }
 JbParser >> expression [ 
 
-	^constantExpression
+	^constantExpression / anonymousFunction / comparisonExpression / identifierExpression 
+
 ]
 
 { #category : #functions }
 JbParser >> function [
 
-	^('function' asParser , #space asParser plus
-	, identifier , $( asParser , $) asParser
-	, #space asParser star
-	, ${ asParser , $} asParser) ==> 
-					[:t | JbFunctionNode new name: t third; yourself]
+	^('function' asParser trim 
+	, identifier , $( asParser , $) asParser trim
+	, ${ asParser trim 
+	, statement star
+	, $} asParser trim) ==> 
+					[:t | JbFunctionNode new name: t second asSymbol; body: t sixth; yourself]
 ]
 
 { #category : #functions }
@@ -59,7 +85,7 @@ JbParser >> functionSequence [
 	^function plus ==> [:t | t first ]
 ]
 
-{ #category : #functions }
+{ #category : #accessing }
 JbParser >> identifier [ 
 
 	^(#letter asParser , (#letter asParser / #digit asParser / 
@@ -67,35 +93,55 @@ JbParser >> identifier [
 ]
 
 { #category : #expressions }
-JbParser >> negativeNumber [ 
+JbParser >> identifierExpression [
 
-	^($- asParser , positiveNumber) flatten trim ==> [ :str | str asNumber ]
+	^identifier ==> [ :arr | JbIdentifierExpressionNode new identifier: arr; yourself ]
+]
+
+{ #category : #statements }
+JbParser >> ifStatement [
+
+	^'if' asParser trim
+	, $( asParser trim
+	, expression
+	, $) asParser trim 
+	, ${ asParser trim 
+	, statementSequence
+	, $} asParser trim ==>
+		[ :arr |
+			JbIfNode new
+				condition: arr third;
+				trueStatements: arr sixth;
+				yourself ]
 ]
 
 { #category : #expressions }
 JbParser >> number [ 
 
-	^positiveNumber / negativeNumber 
-]
-
-{ #category : #expressions }
-JbParser >> positiveNumber [ 
-
-	^(#digit asParser plus, $. asParser optional, #digit asParser star)
+	^($- asParser optional, #digit asParser plus, $. asParser optional, #digit asParser star)
 			 flatten trim ==> [ :str | str asNumber ]
 ]
 
+{ #category : #statements }
+JbParser >> returnStatement [
+
+	^'return' asParser trim , expression ==> [ :arr |
+			JbReturnStatementNode new
+				expression: arr second;
+				yourself ]
+]
+
 { #category : #accessing }
-JbParser >> start [
-	"Answer the production to start this parser with."
-	
+JbParser >> start [ 
+
 	^functionSequence / statementSequence
 ]
 
 { #category : #statements }
 JbParser >> statement [
 
-	^(assignmentStatement trim, $; asParser) 
+	^(assignmentStatement / variableDeclaration / returnStatement / ifStatement) trim
+	, $; asParser 
 		==> [ :arr | arr first ]
 ]
 
@@ -105,8 +151,15 @@ JbParser >> statementSequence [
 		==> [ :arr | arr flattened ]
 ]
 
-{ #category : #accessing }
-JbParser >> whitespace [
+{ #category : #statements }
+JbParser >> variableDeclaration [
 
-	^#blank asParser / #newline asParser
+	^'var' asParser trim
+	, identifier
+	, $= asParser trim
+	, expression ==> 
+				[ :arr | JbVariableDeclarationNode new 
+										identifier: arr second; 
+										expression: arr fourth; 
+										yourself ]
 ]
