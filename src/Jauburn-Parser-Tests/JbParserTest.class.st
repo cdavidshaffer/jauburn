@@ -10,7 +10,7 @@ JbParserTest >> parserClass [
 	^JbParser
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testAnonymousFunctionDefinitionWithAssignment [
 	| func |
 	func := self parse: 'function () {x = 22;}' rule: #anonymousFunction.
@@ -47,7 +47,7 @@ JbParserTest >> testAssignmentStatementSequence [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testComparisonExpression [
 
 	| exp |
@@ -55,7 +55,7 @@ JbParserTest >> testComparisonExpression [
 	self assert: exp first identifier equals: #falaffel
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testEmptyFunctionDefinition [
 
 	| function |
@@ -77,7 +77,7 @@ JbParserTest >> testEmptyFunctionDefinition [
 	self assert: function name equals: #zebra.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testFunctionDefinitionWithAssignment [
 	| function |
 	function := self parse: 'function f() {x = 22;}'.
@@ -87,21 +87,22 @@ JbParserTest >> testFunctionDefinitionWithAssignment [
 	self assert: function body first expression value equals: 22
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testIfStatement [
 
 	| stmt |
-	stmt := self parse: 'if (x == 1) {y = 2;} {y=3;}' rule: #ifStatement
+	stmt := self parse: 'if (x == 1) {y = 2;}' rule: #ifStatement.
+	self assert: (stmt isKindOf: JbIfNode)
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testReturnStatement [
 	| func |
 	func := self parse: 'return 37' rule: #returnStatement.
 	self assert: func expression value equals: 37
 ]
 
-{ #category : #running }
+{ #category : #tests }
 JbParserTest >> testVariableDeclaration [
 
 	| d |
