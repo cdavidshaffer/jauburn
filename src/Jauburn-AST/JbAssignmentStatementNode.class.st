@@ -1,29 +1,29 @@
 Class {
-	#name : #JbAssignmentStatement,
+	#name : #JbAssignmentStatementNode,
 	#superclass : #Object,
 	#instVars : [
 		'identifier',
 		'expression'
 	],
-	#category : #'Jauburn-AST'
+	#category : #'Jauburn-AST-Core'
 }
 
 { #category : #accessing }
-JbAssignmentStatement >> expression [
+JbAssignmentStatementNode >> expression [
 	^ expression
 ]
 
 { #category : #accessing }
-JbAssignmentStatement >> expression: anObject [
+JbAssignmentStatementNode >> expression: anObject [
 	expression := anObject
 ]
 
 { #category : #accessing }
-JbAssignmentStatement >> identifier [
+JbAssignmentStatementNode >> identifier [
 	^ identifier
 ]
 
 { #category : #accessing }
-JbAssignmentStatement >> identifier: anObject [
+JbAssignmentStatementNode >> identifier: anObject [
 	identifier := anObject
 ]

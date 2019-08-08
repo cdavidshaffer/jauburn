@@ -19,6 +19,21 @@ JbParserTest >> testAnonymousFunctionDefinitionWithAssignment [
 	self assert: func body first identifier equals: #x
 ]
 
+{ #category : #'tests-expressions' }
+JbParserTest >> testArithmeticExpression [
+
+	| expression |
+	expression := self parse: '3+4' rule: #arithmeticExpression.
+	self assert: expression lhs value equals: 3.
+	self assert: expression rhs value equals: 4.
+	self assert: expression operator equals: $+.
+	expression := self parse: 'monkey*13' rule: #arithmeticExpression.
+	self assert: expression lhs identifier equals: 'monkey'.
+	self assert: expression rhs value equals: 13.
+	self assert: expression operator equals: $*
+
+]
+
 { #category : #tests }
 JbParserTest >> testAssignmentStatement [
 
@@ -47,7 +62,7 @@ JbParserTest >> testAssignmentStatementSequence [
 
 ]
 
-{ #category : #tests }
+{ #category : #'tests-expressions' }
 JbParserTest >> testComparisonExpression [
 
 	| exp |
@@ -93,6 +108,15 @@ JbParserTest >> testIfStatement [
 	| stmt |
 	stmt := self parse: 'if (x == 1) {y = 2;}' rule: #ifStatement.
 	self assert: (stmt isKindOf: JbIfNode)
+]
+
+{ #category : #'tests-expressions' }
+JbParserTest >> testNumberExpression [
+	"Numbers are tested in JbNumberParserTest.  Here we just make sure that
+	we can parse a number."
+	
+	self assert: (self parse: '15' rule: #numberExpression) value equals: 15.
+	self fail: 'abc' rule: #numberExpression
 ]
 
 { #category : #tests }

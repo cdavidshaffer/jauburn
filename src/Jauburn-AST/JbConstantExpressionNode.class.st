@@ -1,18 +1,18 @@
 Class {
-	#name : #JbConstantExpression,
+	#name : #JbConstantExpressionNode,
 	#superclass : #Object,
 	#instVars : [
 		'value'
 	],
-	#category : #'Jauburn-AST'
+	#category : #'Jauburn-AST-Core'
 }
 
 { #category : #accessing }
-JbConstantExpression >> value [
+JbConstantExpressionNode >> value [
 	^ value
 ]
 
 { #category : #accessing }
-JbConstantExpression >> value: anObject [
+JbConstantExpressionNode >> value: anObject [
 	value := anObject
 ]

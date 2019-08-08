@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'identifier'
 	],
-	#category : #'Jauburn-AST'
+	#category : #'Jauburn-AST-Core'
 }
 
 { #category : #accessing }
