@@ -16,7 +16,7 @@ JbParserTest >> testAnonymousFunctionDefinitionWithAssignment [
 	func := self parse: 'function () {x = 22;}' rule: #anonymousFunctionExpression.
 	self assert: func name isNil.
 	self assert: func body notEmpty.
-	self assert: func body first identifier equals: #x
+	self assert: func body first identifier equals: 'x'
 ]
 
 { #category : #'tests-expressions' }
@@ -55,30 +55,10 @@ JbParserTest >> testArithmeticExpression [
 
 { #category : #'tests-statements' }
 JbParserTest >> testAssignmentStatement [
-
-	self assert: (self parse: 'x = 33;')
-		first identifier equals: #x.
-	self assert: (self parse: 'x = 33;')
-		first expression value equals: 33.
-
-]
-
-{ #category : #'tests-statements' }
-JbParserTest >> testAssignmentStatementSequence [
-
-	| res |
-	res := self parse: 'x = 33;y=-19;'.
-	self assert: res first identifier equals: #x.
-	self assert: res first expression value equals: 33.
-	self assert: res second identifier equals: #y.
-	self assert: res second expression value equals: -19.
-	
-	res := self parse: 'monkey = 3.14; zebra = -1232.112;'.
-	self assert: res first identifier equals: #monkey.
-	self assert: res first expression value equals: 3.14.
-	self assert: res second identifier equals: #zebra.
-	self assert: res second expression value equals: -1232.112.
-
+	| exp |
+	exp := self parse: 'x = 33;' rule: #assignmentStatement.
+	self assert: exp identifier equals: 'x'.
+	self assert: exp expression value equals: 33
 ]
 
 { #category : #'tests-expressions' }
@@ -104,28 +84,6 @@ JbParserTest >> testComparisonExpression [
 	self assert: exp lhs identifier equals: #falafel.
 	self assert: exp operator equals: '!='.
 
-]
-
-{ #category : #'tests-statements' }
-JbParserTest >> testEmptyFunctionDefinition [
-
-	| function |
-	function := self parse: 'function f() {}'.
-	self assert: function notNil.
-	self assert: function name equals: #f.
-	
-	function := self parse: 'function    z() {}'.
-	self assert: function notNil.
-	self assert: function name equals: #z.
-	
-	function := self parse: 'function monkey() {}'.
-	self assert: function notNil.
-	self assert: function name equals: #monkey.
-	
-	function := self parse: 'function 			
-				zebra() {}'.
-	self assert: function notNil.
-	self assert: function name equals: #zebra.
 ]
 
 { #category : #'tests-expressions' }
@@ -164,16 +122,6 @@ JbParserTest >> testFunctionCallExpression [
 	call := self parse: 'speak()' rule: #functionCallExpression.
 	self assert: call identifier equals: 'speak'.
 	self assert: call arguments isEmpty.
-]
-
-{ #category : #'tests-statements' }
-JbParserTest >> testFunctionDefinitionWithAssignment [
-	| function |
-	function := self parse: 'function f() {x = 22;}'.
-	self assert: function notNil.
-	self assert: function name equals: #f.
-	self assert: function body first identifier equals: #x.
-	self assert: function body first expression value equals: 22
 ]
 
 { #category : #'tests-expressions' }
@@ -221,6 +169,19 @@ JbParserTest >> testNumberExpression [
 ]
 
 { #category : #'tests-statements' }
+JbParserTest >> testProgram [ 
+
+	| pgm |
+	pgm := self parse: '
+var x = 9;
+var y = 32*x - 15 / 18;
+var z = function (a,b,zebra) { a = 22; };'
+	rule: #program.
+	
+	self assert: pgm statements size equals: 3
+]
+
+{ #category : #'tests-statements' }
 JbParserTest >> testReturnStatement [
 	| func |
 	func := self parse: 'return 37' rule: #returnStatement.
@@ -228,10 +189,36 @@ JbParserTest >> testReturnStatement [
 ]
 
 { #category : #'tests-statements' }
-JbParserTest >> testVariableDeclaration [
+JbParserTest >> testStatement [ 
 
-	| d |
-	d := self parse: 'var x = 0' rule: #variableDeclaration.
-	self assert: d identifier equals: #x.
-	self assert: d expression value equals: 0
+	| stmt |
+	stmt := self parse: 'var monkey = -1231 + x;' rule: #statement.
+	self assert: stmt identifier equals: 'monkey'.
+	stmt := self parse: 'zebra = 3 *x - 1;' rule: #statement.
+	self assert: stmt identifier equals: 'zebra'.
+	stmt := self parse: 'if (x == 2) {} else {}' rule: #statement.
+	self assert: stmt condition operator equals: '=='.
+	stmt := self parse: 'if (zebra > 12) {}' rule: #statement.
+	self assert: stmt condition operator equals: '>'.
+	self assert: stmt condition lhs identifier equals: 'zebra'
+]
+
+{ #category : #'tests-statements' }
+JbParserTest >> testStatementBlock [ 
+
+	| blk |
+	blk := self parse: '{ x = 1; var y = 23 * x; }' rule: #statementBlock.
+	self assert: blk size equals: 2.
+	self assert: blk first identifier equals: 'x'.
+	self assert: blk second identifier equals: 'y'
+]
+
+{ #category : #'tests-statements' }
+JbParserTest >> testVariableDeclarationStatement [
+
+	| stmt |
+	stmt := self parse: 'var x = 22;' rule: #variableDeclarationStatement.
+	self assert: stmt identifier equals: 'x'.
+	stmt := self parse: 'var monkey = 37*x;' rule: #variableDeclarationStatement.
+	self assert: stmt identifier equals: 'monkey'
 ]

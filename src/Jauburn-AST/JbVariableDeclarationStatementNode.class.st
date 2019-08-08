@@ -1,5 +1,5 @@
 Class {
-	#name : #JbVariableDeclarationNode,
+	#name : #JbVariableDeclarationStatementNode,
 	#superclass : #Object,
 	#instVars : [
 		'identifier',
@@ -9,21 +9,21 @@ Class {
 }
 
 { #category : #accessing }
-JbVariableDeclarationNode >> expression [
+JbVariableDeclarationStatementNode >> expression [
 	^ expression
 ]
 
 { #category : #accessing }
-JbVariableDeclarationNode >> expression: anObject [
+JbVariableDeclarationStatementNode >> expression: anObject [
 	expression := anObject
 ]
 
 { #category : #accessing }
-JbVariableDeclarationNode >> identifier [
+JbVariableDeclarationStatementNode >> identifier [
 	^ identifier
 ]
 
 { #category : #accessing }
-JbVariableDeclarationNode >> identifier: anObject [
+JbVariableDeclarationStatementNode >> identifier: anObject [
 	identifier := anObject
 ]

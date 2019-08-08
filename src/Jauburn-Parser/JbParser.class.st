@@ -8,14 +8,14 @@ EBNF
    <statement>*
 
 <statement> ::=
-   <decl-statement>
+   <variable-declaration-statement>
    | <assignment-statement>
+   | <if-else-statement>
    | <if-statement>
 
-<decl-statement> ::=
+<variable-declaration-statement> ::=
    var <identifier> = <expression> ;
 
-// CDS
 <assignment-statement> ::=
    <identifier> = <expression> ;
 
@@ -57,6 +57,7 @@ EBNF
 <expression-list> ::=
    <expression>
    | <expression> , <expression-list>
+   | epsilon
 
 
 /*
@@ -116,15 +117,11 @@ Class {
 	#name : #JbParser,
 	#superclass : #PPCompositeParser,
 	#instVars : [
-		'function',
 		'identifier',
-		'functionSequence',
 		'expression',
-		'statement',
 		'assignmentStatement',
 		'numberExpression',
 		'anonymousFunctionExpression',
-		'variableDeclaration',
 		'returnStatement',
 		'ifStatement',
 		'identifierExpression',
@@ -135,7 +132,10 @@ Class {
 		'functionCallExpression',
 		'identifierExpressionList',
 		'statementBlock',
-		'ifElseStatement'
+		'ifElseStatement',
+		'statement',
+		'variableDeclarationStatement',
+		'program'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -213,13 +213,12 @@ JbParser >> arithmeticExpression [
 
 { #category : #statements }
 JbParser >> assignmentStatement [
-
-	^(identifier trim , $= asParser trim , 
-		expression)  ==> 
-			[ :arr | JbAssignmentStatementNode new 
-									identifier: arr first; 
-									expression: arr third;
-									yourself ]
+	^ (identifier trim , $= asParser trim , expression , $; asParser)
+		==> [ :arr | 
+			JbAssignmentStatementNode new
+				identifier: arr first;
+				expression: arr third;
+				yourself ]
 ]
 
 { #category : #expressions }
@@ -263,17 +262,6 @@ JbParser >> expressionList [
 			result ]
 ]
 
-{ #category : #functions }
-JbParser >> function [
-
-	^('function' asParser trim 
-	, identifier , $( asParser , $) asParser trim
-	, ${ asParser trim 
-	, statement star
-	, $} asParser trim) ==> 
-					[:t | JbFunctionNode new name: t second asSymbol; body: t sixth; yourself]
-]
-
 { #category : #expressions }
 JbParser >> functionCallExpression [
 	^ (identifier , $( asParser trim , expressionList , $) asParser trim)
@@ -282,12 +270,6 @@ JbParser >> functionCallExpression [
 				identifier: arr first;
 				arguments: arr third;
 				yourself ]
-]
-
-{ #category : #functions }
-JbParser >> functionSequence [
-
-	^function plus ==> [:t | t first ]
 ]
 
 { #category : #'low-level' }
@@ -373,6 +355,12 @@ JbParser >> numberExpression [
 ]
 
 { #category : #statements }
+JbParser >> program [
+
+	^statement trim star ==> [ :arr | JbProgramNode new statements: arr; yourself ]
+]
+
+{ #category : #statements }
 JbParser >> returnStatement [
 
 	^'return' asParser trim , expression ==> [ :arr |
@@ -384,34 +372,30 @@ JbParser >> returnStatement [
 { #category : #accessing }
 JbParser >> start [ 
 
-	^functionSequence / statementBlock
+	^nil asParser
 ]
 
 { #category : #statements }
 JbParser >> statement [
 
-	^(assignmentStatement / variableDeclaration / returnStatement / ifElseStatement / ifStatement) trim
-	, $; asParser 
-		==> [ :arr | arr first ]
+	^variableDeclarationStatement / assignmentStatement / ifElseStatement / ifStatement
 ]
 
 { #category : #statements }
-JbParser >> statementBlock [
-	^ ${ asParser trim
-	, (statement trim star)
+JbParser >> statementBlock [ 
+
+	^${ asParser trim,
+	statement trim star 
 	, $} asParser trim
-		==> [ :arr | arr second flattened ]
+	  ==> [ :arr | arr second ]
 ]
 
 { #category : #statements }
-JbParser >> variableDeclaration [
+JbParser >> variableDeclarationStatement [
 
-	^'var' asParser trim
-	, identifier
-	, $= asParser trim
-	, expression ==> 
-				[ :arr | JbVariableDeclarationNode new 
-										identifier: arr second; 
-										expression: arr fourth; 
+	^'var' asParser , identifier , $= asParser trim, expression , $; asParser trim
+		==> [ :arr | JbVariableDeclarationStatementNode new 
+										identifier: arr second;
+										expression: arr fourth;
 										yourself ]
 ]
