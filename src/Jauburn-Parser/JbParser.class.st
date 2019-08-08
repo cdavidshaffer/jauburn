@@ -1,6 +1,9 @@
 "
 I am a parser for the Jauburn language.
 
+EBNF
+
+
 <program> ::=
    <statement>*
 
@@ -16,10 +19,10 @@ I am a parser for the Jauburn language.
    <identifier> = <expression> ;
 
 <if-statement> ::=
-   if '(' <expression> ')' <statement-block>
+   if '(' <expression> ')' <statement-sequence>
 
-<statement-block> ::=
-   '{' <statement>* '}'
+<if-else-statement> ::=
+   if '(' <expression> ')' <statement-sequence> else <statement-sequence>
 
 /* Cannot be in <keyword> */
 <identifier> ::=
@@ -28,13 +31,25 @@ I am a parser for the Jauburn language.
 <keyword> ::=
    if
    | var
+   | function
 
+<expression> ::=
+   <function-definition-expression>
+   | <function-call-expression>
+   | <arithmetic-expression>
+   | <comparison-expression>
+
+//CDS
 <function-definition-expression> ::=
-   function '(' <parameter-list> ')' <statement-block>
+   function '(' <identifier-list> ')' <statement-sequence>
 
-<parameter-list> ::=
+<statement-sequence> ::=
+   '{' <statement>* '}'
+
+<identifier-list> ::=
    <identifier>
-   | <identifier> , <parameter-list>
+   | <identifier> , <identifier-list>
+   | epsilon    /* the empty expression */
 
 <function-call-expression> ::=
    <identifier> '(' <expression-list> ')'
@@ -43,11 +58,6 @@ I am a parser for the Jauburn language.
    <expression>
    | <expression> , <expression-list>
 
-<expression> ::=
-   <function-definition-expression>
-   | <function-call-expression>
-   | <arithmetic-expression>
-   | <comparison-expression>
 
 /*
  * A very simple grammar for comparison expressions.
@@ -60,23 +70,26 @@ I am a parser for the Jauburn language.
    | <arithmetic-expression> >= <arithmetic-expression>
    | <arithmetic-expression> != <arithmetic-expression>
 
-/* The dis-ambiguated expression grammar from slides with identifier
- * added as an option for factors and including division and subtraction.
+/*
+ * Expression grammar.  Note: this grammar isn't used directly by this paser.
+ * Instead we are using a PPExpressionParser which takes care of precedence etc.
+ * However, this grammar is correct for BNF purposes.
  */
-<arithmetic-expression> ::= 
-   <arithmetic-expression> + <term> 
-   | <arithmetic-expression> - <term>
+
+<arithmetic-expression> ::=
+   <arithmetic-expression> '+' <term>
+   | <arithmetic-expression> '-' <term>
    | <term>
 
-<term> ::= 
-   <term> * <factor>
-   | <term> / <factor>
+<term> ::=
+   <term> '*' <factor>
+   | <term> '/' <factor>
    | <factor>
 
 <factor> ::=
    '(' <arithmetic-expression> ')'
-   | <integer>
-   | <identifier>
+   | <number>
+   | <idenfitier>
 
 
 /* integer grammar from slides */
@@ -111,13 +124,17 @@ Class {
 		'statement',
 		'assignmentStatement',
 		'numberExpression',
-		'anonymousFunction',
+		'anonymousFunctionExpression',
 		'variableDeclaration',
 		'returnStatement',
 		'ifStatement',
 		'identifierExpression',
 		'comparisonExpression',
-		'arithmeticExpression'
+		'arithmeticExpression',
+		'keyword',
+		'expressionList',
+		'functionCallExpression',
+		'identifierExpressionList'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -125,17 +142,17 @@ Class {
 { #category : #accessing }
 JbParser class >> dependencies [
 
-	^{JbNumberParser}
+	^{JbNumberParser }
 ]
 
-{ #category : #functions }
-JbParser >> anonymousFunction [
+{ #category : #expressions }
+JbParser >> anonymousFunctionExpression [
 
-	^('function' asParser trim 
-	, $( asParser trim , $) asParser trim
-	, ${ asParser trim 
-	, statement star
-	, $} asParser trim) ==> 
+	^('function' asParser 
+	, $( asParser trim 
+	, identifierExpressionList 
+	, $) asParser trim
+	, statementSequence) ==> 
 					[:t | JbFunctionNode new name: nil; body: t fifth; yourself]
 ]
 
@@ -147,7 +164,14 @@ JbParser >> arithmeticExpression [
 		==> [ :nodes | nodes second ].
 	exp term: parens / numberExpression / identifierExpression.
 	exp
-		group: [ :g | g prefix: $- asParser trim do: [ :op :a | a negated ] ];
+		group: [ :g | 
+			g
+				prefix: $- asParser trim
+				do: [ :op :a | 
+					JbArity1OperatorNode new
+						operator: op;
+						operand: a;
+						yourself ] ];
 		group: [ :g | 
 			g
 				left: $* asParser trim
@@ -198,21 +222,35 @@ JbParser >> assignmentStatement [
 
 { #category : #expressions }
 JbParser >> comparisonExpression [
-	"placeholder!"
-	
-	^arithmeticExpression , '==' asParser , arithmeticExpression
-	/ arithmeticExpression , '<' asParser , arithmeticExpression
-	/ arithmeticExpression , '<=' asParser , arithmeticExpression
-	/ arithmeticExpression , '>' asParser , arithmeticExpression
-	/ arithmeticExpression , '>=' asParser , arithmeticExpression
-	/ expression , '!=' asParser , expression
+	^ (arithmeticExpression , '==' asParser trim , arithmeticExpression)
+		/ (arithmeticExpression , '<' asParser trim , arithmeticExpression)
+		/ (arithmeticExpression , '<=' asParser trim , arithmeticExpression)
+		/ (arithmeticExpression , '>' asParser trim , arithmeticExpression)
+		/ (arithmeticExpression , '>=' asParser trim , arithmeticExpression)
+		/ (arithmeticExpression , '!=' asParser trim , arithmeticExpression)
+		==> [ :arr | 
+			JbArity2OperatorNode new
+				lhs: arr first;
+				operator: arr second;
+				rhs: arr third;
+				yourself ]
 ]
 
 { #category : #expressions }
 JbParser >> expression [ 
 
-	^arithmeticExpression
+	^arithmeticExpression / functionCallExpression / comparisonExpression
+]
 
+{ #category : #expressions }
+JbParser >> expressionList [
+
+	^expression , $, asParser not / (expression , $, asParser trim, expressionList)
+			==> [ :arr | |result|
+						result := OrderedCollection new.
+						result add: arr first.
+						arr size = 3 ifTrue: [ result addAll: arr third ].
+						result ]
 ]
 
 { #category : #functions }
@@ -226,17 +264,27 @@ JbParser >> function [
 					[:t | JbFunctionNode new name: t second asSymbol; body: t sixth; yourself]
 ]
 
+{ #category : #expressions }
+JbParser >> functionCallExpression [
+	^ (identifier , $( asParser trim , expressionList , $) asParser trim)
+		==> [ :arr | 
+			JbFunctionCallNode new
+				identifier: arr first;
+				arguments: arr third;
+				yourself ]
+]
+
 { #category : #functions }
 JbParser >> functionSequence [
 
 	^function plus ==> [:t | t first ]
 ]
 
-{ #category : #accessing }
+{ #category : #'low-level' }
 JbParser >> identifier [ 
 
 	^(#letter asParser , (#letter asParser / #digit asParser / 
-			$_ asParser ) star) flatten trim
+			$_ asParser) star) flatten trim
 ]
 
 { #category : #expressions }
@@ -246,6 +294,22 @@ JbParser >> identifierExpression [
 			JbIdentifierExpressionNode new
 				identifier: arr;
 				yourself ]
+]
+
+{ #category : #expressions }
+JbParser >> identifierExpressionList [ 
+
+	^(identifierExpression , $, asParser not)
+	/ (identifierExpression , $, asParser trim, identifierExpressionList)
+	/ nil asParser 
+		==> [ :arrOrNil |
+					arrOrNil
+						ifNil: [ #() ]
+						ifNotNil: [ |result|
+							result := OrderedCollection new.
+							result add: arrOrNil first.
+							arrOrNil size = 3 ifTrue: [ result addAll: arrOrNil third ].
+					result] ]
 ]
 
 { #category : #statements }
@@ -263,6 +327,13 @@ JbParser >> ifStatement [
 				condition: arr third;
 				trueStatements: arr sixth;
 				yourself ]
+]
+
+{ #category : #'low-level' }
+JbParser >> keyword [ 
+
+	^'if' asParser
+	/ 'else' asParser
 ]
 
 { #category : #expressions }
@@ -297,8 +368,10 @@ JbParser >> statement [
 
 { #category : #statements }
 JbParser >> statementSequence [
-	^ (statement trim , statementSequence trim star)
-		==> [ :arr | arr flattened ]
+	^ ${ asParser trim
+	, (statement trim star)
+	, $} asParser trim
+		==> [ :arr | arr second flattened ]
 ]
 
 { #category : #statements }

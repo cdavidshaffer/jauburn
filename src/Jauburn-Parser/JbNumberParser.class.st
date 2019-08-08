@@ -9,7 +9,7 @@ Class {
 		'digit',
 		'integer'
 	],
-	#category : #'Jauburn-Parser'
+	#category : #'Jauburn-Parser-Core'
 }
 
 { #category : #'factory-chars' }
