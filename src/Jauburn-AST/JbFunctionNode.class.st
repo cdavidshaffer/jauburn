@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'name',
-		'body'
+		'body',
+		'parameters'
 	],
 	#category : #'Jauburn-AST-Core'
 }
@@ -26,4 +27,14 @@ JbFunctionNode >> name [
 { #category : #accessing }
 JbFunctionNode >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+JbFunctionNode >> parameters [
+	^ parameters
+]
+
+{ #category : #accessing }
+JbFunctionNode >> parameters: anObject [
+	parameters := anObject
 ]

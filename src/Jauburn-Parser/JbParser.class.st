@@ -15,14 +15,15 @@ EBNF
 <decl-statement> ::=
    var <identifier> = <expression> ;
 
+// CDS
 <assignment-statement> ::=
    <identifier> = <expression> ;
 
 <if-statement> ::=
-   if '(' <expression> ')' <statement-sequence>
+   if '(' <expression> ')' <statement-block>
 
 <if-else-statement> ::=
-   if '(' <expression> ')' <statement-sequence> else <statement-sequence>
+   if '(' <expression> ')' <statement-block> else <statement-block>
 
 /* Cannot be in <keyword> */
 <identifier> ::=
@@ -39,11 +40,10 @@ EBNF
    | <arithmetic-expression>
    | <comparison-expression>
 
-//CDS
 <function-definition-expression> ::=
-   function '(' <identifier-list> ')' <statement-sequence>
+   function '(' <identifier-list> ')' <statement-block>
 
-<statement-sequence> ::=
+<statement-block> ::=
    '{' <statement>* '}'
 
 <identifier-list> ::=
@@ -120,7 +120,6 @@ Class {
 		'identifier',
 		'functionSequence',
 		'expression',
-		'statementSequence',
 		'statement',
 		'assignmentStatement',
 		'numberExpression',
@@ -134,7 +133,9 @@ Class {
 		'keyword',
 		'expressionList',
 		'functionCallExpression',
-		'identifierExpressionList'
+		'identifierExpressionList',
+		'statementBlock',
+		'ifElseStatement'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -147,13 +148,14 @@ JbParser class >> dependencies [
 
 { #category : #expressions }
 JbParser >> anonymousFunctionExpression [
-
-	^('function' asParser 
-	, $( asParser trim 
-	, identifierExpressionList 
-	, $) asParser trim
-	, statementSequence) ==> 
-					[:t | JbFunctionNode new name: nil; body: t fifth; yourself]
+	^ ('function' asParser , $( asParser trim , identifierExpressionList
+		, $) asParser trim , statementBlock)
+		==> [ :t | 
+			JbFunctionNode new
+				name: nil;
+				parameters: t third;
+				body: t fifth;
+				yourself ]
 ]
 
 { #category : #expressions }
@@ -239,18 +241,26 @@ JbParser >> comparisonExpression [
 { #category : #expressions }
 JbParser >> expression [ 
 
-	^arithmeticExpression / functionCallExpression / comparisonExpression
+	^anonymousFunctionExpression 
+	/ comparisonExpression
+	/ arithmeticExpression 
+	/ functionCallExpression 
+
 ]
 
 { #category : #expressions }
 JbParser >> expressionList [
-
-	^expression , $, asParser not / (expression , $, asParser trim, expressionList)
-			==> [ :arr | |result|
-						result := OrderedCollection new.
-						result add: arr first.
-						arr size = 3 ifTrue: [ result addAll: arr third ].
-						result ]
+	^ (expression , $, asParser not)
+		/ (expression , $, asParser trim , expressionList) 
+		/ nil asParser
+		==> [ :arr | 
+			| result |
+			result := OrderedCollection new.
+			arr
+				ifNotNil: [ result add: arr first.
+					arr size = 3
+						ifTrue: [ result addAll: arr third ] ].
+			result ]
 ]
 
 { #category : #functions }
@@ -313,19 +323,37 @@ JbParser >> identifierExpressionList [
 ]
 
 { #category : #statements }
+JbParser >> ifElseStatement [
+
+	^'if' asParser trim
+	, $( asParser trim
+	, expression
+	, $) asParser trim 
+	, statementBlock
+	, 'else' asParser trim 
+	, statementBlock
+		 ==>
+		[ :arr |
+			JbIfElseNode new
+				condition: arr third;
+				trueStatements: arr fifth;
+				falseStatements: arr seventh;
+				yourself ]
+]
+
+{ #category : #statements }
 JbParser >> ifStatement [
 
 	^'if' asParser trim
 	, $( asParser trim
 	, expression
 	, $) asParser trim 
-	, ${ asParser trim 
-	, statementSequence
-	, $} asParser trim ==>
+	, statementBlock
+		 ==>
 		[ :arr |
 			JbIfNode new
 				condition: arr third;
-				trueStatements: arr sixth;
+				trueStatements: arr fifth;
 				yourself ]
 ]
 
@@ -334,6 +362,7 @@ JbParser >> keyword [
 
 	^'if' asParser
 	/ 'else' asParser
+	/ 'function' asParser
 ]
 
 { #category : #expressions }
@@ -355,19 +384,19 @@ JbParser >> returnStatement [
 { #category : #accessing }
 JbParser >> start [ 
 
-	^functionSequence / statementSequence
+	^functionSequence / statementBlock
 ]
 
 { #category : #statements }
 JbParser >> statement [
 
-	^(assignmentStatement / variableDeclaration / returnStatement / ifStatement) trim
+	^(assignmentStatement / variableDeclaration / returnStatement / ifElseStatement / ifStatement) trim
 	, $; asParser 
 		==> [ :arr | arr first ]
 ]
 
 { #category : #statements }
-JbParser >> statementSequence [
+JbParser >> statementBlock [
 	^ ${ asParser trim
 	, (statement trim star)
 	, $} asParser trim
