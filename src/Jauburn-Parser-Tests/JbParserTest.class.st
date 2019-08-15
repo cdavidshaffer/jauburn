@@ -168,17 +168,15 @@ JbParserTest >> testNumberExpression [
 	self fail: 'abc' rule: #numberExpression
 ]
 
-{ #category : #'tests-statements' }
+{ #category : #'tests-program' }
 JbParserTest >> testProgram [ 
 
 	| pgm |
-	pgm := self parse: '
-var x = 9;
-var y = 32*x - 15 / 18;
-var z = function (a,b,zebra) { a = 22; };'
-	rule: #program.
-	
-	self assert: pgm statements size equals: 3
+	pgm := self parse: 'var x = function(x) { var z = 22; var y = z + 1; };
+var lmnop123 = 9 * 2 + 44;'.
+	self assert: pgm statements size equals: 2.
+	self assert: pgm statements first identifier equals: 'x'.
+	self assert: pgm statements second identifier equals: 'lmnop123'
 ]
 
 { #category : #'tests-statements' }

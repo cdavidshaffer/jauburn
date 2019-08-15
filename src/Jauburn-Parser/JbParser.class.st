@@ -148,6 +148,7 @@ JbParser class >> dependencies [
 
 { #category : #expressions }
 JbParser >> anonymousFunctionExpression [
+
 	^ ('function' asParser , $( asParser trim , identifierExpressionList
 		, $) asParser trim , statementBlock)
 		==> [ :t | 
@@ -160,6 +161,7 @@ JbParser >> anonymousFunctionExpression [
 
 { #category : #expressions }
 JbParser >> arithmeticExpression [
+
 	| exp parens |
 	exp := PPExpressionParser new.
 	parens := ($( asParser trim , exp , $) asParser trim)
@@ -213,6 +215,7 @@ JbParser >> arithmeticExpression [
 
 { #category : #statements }
 JbParser >> assignmentStatement [
+
 	^ (identifier trim , $= asParser trim , expression , $; asParser)
 		==> [ :arr | 
 			JbAssignmentStatementNode new
@@ -223,6 +226,7 @@ JbParser >> assignmentStatement [
 
 { #category : #expressions }
 JbParser >> comparisonExpression [
+
 	^ (arithmeticExpression , '==' asParser trim , arithmeticExpression)
 		/ (arithmeticExpression , '<' asParser trim , arithmeticExpression)
 		/ (arithmeticExpression , '<=' asParser trim , arithmeticExpression)
@@ -249,9 +253,9 @@ JbParser >> expression [
 
 { #category : #expressions }
 JbParser >> expressionList [
+
 	^ (expression , $, asParser not)
-		/ (expression , $, asParser trim , expressionList) 
-		/ nil asParser
+		/ (expression , $, asParser trim , expressionList) / nil asParser
 		==> [ :arr | 
 			| result |
 			result := OrderedCollection new.
@@ -264,6 +268,7 @@ JbParser >> expressionList [
 
 { #category : #expressions }
 JbParser >> functionCallExpression [
+
 	^ (identifier , $( asParser trim , expressionList , $) asParser trim)
 		==> [ :arr | 
 			JbFunctionCallNode new
@@ -281,6 +286,7 @@ JbParser >> identifier [
 
 { #category : #expressions }
 JbParser >> identifierExpression [
+
 	^ identifier
 		==> [ :arr | 
 			JbIdentifierExpressionNode new
@@ -289,19 +295,20 @@ JbParser >> identifierExpression [
 ]
 
 { #category : #expressions }
-JbParser >> identifierExpressionList [ 
+JbParser >> identifierExpressionList [
 
-	^(identifierExpression , $, asParser not)
-	/ (identifierExpression , $, asParser trim, identifierExpressionList)
-	/ nil asParser 
-		==> [ :arrOrNil |
-					arrOrNil
-						ifNil: [ #() ]
-						ifNotNil: [ |result|
-							result := OrderedCollection new.
-							result add: arrOrNil first.
-							arrOrNil size = 3 ifTrue: [ result addAll: arrOrNil third ].
-					result] ]
+	^ (identifierExpression , $, asParser not)
+		/ (identifierExpression , $, asParser trim , identifierExpressionList)
+		/ nil asParser
+		==> [ :arrOrNil | 
+			arrOrNil
+				ifNil: [ #() ]
+				ifNotNil: [ | result |
+					result := OrderedCollection new.
+					result add: arrOrNil first.
+					arrOrNil size = 3
+						ifTrue: [ result addAll: arrOrNil third ].
+					result ] ]
 ]
 
 { #category : #statements }
@@ -350,14 +357,21 @@ JbParser >> keyword [
 { #category : #expressions }
 JbParser >> numberExpression [
 
-	^(self dependencyAt: JbNumberParser) integer
-		==> [ :n | JbConstantExpressionNode new value: n; yourself ]
+	^ (self dependencyAt: JbNumberParser) integer
+		==> [ :n | 
+			JbConstantExpressionNode new
+				value: n;
+				yourself ]
 ]
 
-{ #category : #statements }
+{ #category : #accessing }
 JbParser >> program [
 
-	^statement trim star ==> [ :arr | JbProgramNode new statements: arr; yourself ]
+	^ statement star
+		==> [ :stmts | 
+			JbProgramNode new
+				statements: stmts;
+				yourself ]
 ]
 
 { #category : #statements }
@@ -372,13 +386,14 @@ JbParser >> returnStatement [
 { #category : #accessing }
 JbParser >> start [ 
 
-	^nil asParser
+	^program
 ]
 
 { #category : #statements }
 JbParser >> statement [
 
-	^variableDeclarationStatement / assignmentStatement / ifElseStatement / ifStatement
+	^ variableDeclarationStatement / assignmentStatement
+		/ ifElseStatement / ifStatement
 ]
 
 { #category : #statements }
@@ -393,9 +408,11 @@ JbParser >> statementBlock [
 { #category : #statements }
 JbParser >> variableDeclarationStatement [
 
-	^'var' asParser , identifier , $= asParser trim, expression , $; asParser trim
-		==> [ :arr | JbVariableDeclarationStatementNode new 
-										identifier: arr second;
-										expression: arr fourth;
-										yourself ]
+	^ ('var' asParser , identifier , $= asParser trim , expression
+		, $; asParser trim)
+		==> [ :arr | 
+			JbVariableDeclarationStatementNode new
+				identifier: arr second;
+				expression: arr fourth;
+				yourself ]
 ]
