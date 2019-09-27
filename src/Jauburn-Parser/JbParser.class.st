@@ -135,7 +135,9 @@ Class {
 		'ifElseStatement',
 		'statement',
 		'variableDeclarationStatement',
-		'program'
+		'program',
+		'stringExpression',
+		'stringComparisonExpression'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -246,6 +248,8 @@ JbParser >> expression [
 
 	^anonymousFunctionExpression 
 	/ comparisonExpression
+	/ stringComparisonExpression
+	/ stringExpression
 	/ arithmeticExpression 
 	/ functionCallExpression 
 
@@ -403,6 +407,29 @@ JbParser >> statementBlock [
 	statement trim star 
 	, $} asParser trim
 	  ==> [ :arr | arr second ]
+]
+
+{ #category : #expressions }
+JbParser >> stringComparisonExpression [
+
+	^ (stringExpression , '==' asParser trim , stringExpression)
+		/ (stringExpression , '!=' asParser trim , stringExpression)
+		==> [ :arr | 
+			JbArity2OperatorNode new
+				lhs: arr first;
+				operator: arr second;
+				rhs: arr third;
+				yourself ]
+]
+
+{ #category : #expressions }
+JbParser >> stringExpression [
+
+	^ ($" asParser , $" asParser negate star , $" asParser) flatten trim 
+		==> [ :str | 
+			JbConstantExpressionNode new
+				value: str allButFirst allButLast;
+				yourself ]
 ]
 
 { #category : #statements }

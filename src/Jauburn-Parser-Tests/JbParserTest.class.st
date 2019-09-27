@@ -147,7 +147,12 @@ JbParserTest >> testIfElseStatement [
 	stmt := self parse: 'if (x+99 < 1) {} else {}' rule: #ifElseStatement.
 	self assert: stmt condition operator equals: '<'.
 	self assert: stmt trueStatements isEmpty.
-	self assert: stmt falseStatements isEmpty
+	self assert: stmt falseStatements isEmpty.
+	
+	stmt := self parse: 'if ("hello" == "goodbye") { x = 2; } else { y = 3; }' rule: #ifElseStatement.
+	self assert: stmt condition operator equals: '=='.
+	self deny: stmt trueStatements isEmpty.
+	self deny: stmt falseStatements isEmpty.
 ]
 
 { #category : #'tests-statements' }
@@ -209,6 +214,26 @@ JbParserTest >> testStatementBlock [
 	self assert: blk size equals: 2.
 	self assert: blk first identifier equals: 'x'.
 	self assert: blk second identifier equals: 'y'
+]
+
+{ #category : #'tests-expressions' }
+JbParserTest >> testStringComparisonExpression [
+
+	| exp |
+	exp := self parse: '"foo bar" == "biz baz"' rule: #stringComparisonExpression.
+	self assert: exp lhs value equals: 'foo bar'.
+	self assert: exp operator equals: '=='.
+	self assert: exp rhs value equals: 'biz baz'.
+
+]
+
+{ #category : #'tests-expressions' }
+JbParserTest >> testStringExpression [
+	"Numbers are tested in JbNumberParserTest.  Here we just make sure that
+	we can parse a number."
+	
+	self assert: (self parse: '"abc124 hello"' rule: #stringExpression) value equals: 'abc124 hello'.
+	self fail: 'abc' rule: #stringExpression
 ]
 
 { #category : #'tests-statements' }
