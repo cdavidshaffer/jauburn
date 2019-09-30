@@ -11,10 +11,10 @@ BaselineOfJauburn >> baseline: spec [
 	spec for: #common do: [
 		self petitParser: spec.
 		spec package: 'Jauburn-AST'.
-		spec package: 'Jauburn-Parser'.
-		spec package: 'Jauburn-Interpreter'.
-		spec package: 'Jauburn-Parser-Tests'.
-		spec package: 'Jauburn-Interpreter-Tests'.
+		spec package: 'Jauburn-Parser' with: [ spec requires: #('Jauburn-AST')].
+		spec package: 'Jauburn-Interpreter' with: [ spec requires: #('Jauburn-Parser')].
+		spec package: 'Jauburn-Parser-Tests' with: [ spec requires: #('Jauburn-Parser')].
+		spec package: 'Jauburn-Interpreter-Tests' with: [ spec requires: #('Jauburn-Interpreter')].
 		]
 ]
 
