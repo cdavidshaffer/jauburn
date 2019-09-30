@@ -13,7 +13,6 @@ BaselineOfJauburn >> baseline: spec [
 		spec package: 'Jauburn-AST'.
 		spec package: 'Jauburn-Parser'.
 		spec package: 'Jauburn-Interpreter'.
-		spec package: 'Jauburn-AST-Tests'.
 		spec package: 'Jauburn-Parser-Tests'.
 		spec package: 'Jauburn-Interpreter-Tests'.
 		]
