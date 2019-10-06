@@ -58,7 +58,25 @@ JbParserTest >> testAssignmentStatement [
 	| exp |
 	exp := self parse: 'x = 33;' rule: #assignmentStatement.
 	self assert: exp identifier equals: 'x'.
-	self assert: exp expression value equals: 33
+	self assert: exp expression value equals: 33.
+	exp := self parse: 'x = true;' rule: #assignmentStatement.
+	self assert: exp expression value.
+	exp := self parse: 'x = false;' rule: #assignmentStatement.
+	self deny: exp expression value.
+	exp := self parse: 'x = foo(10,20,30);' rule: #assignmentStatement.
+	self assert: exp expression identifier equals: 'foo'
+]
+
+{ #category : #'tests-expressions' }
+JbParserTest >> testBooleanExpression [
+
+	| expression |
+	expression := self parse: 'true' rule: #booleanExpression.
+	self assert: expression value.
+	
+	expression := self parse: 'false' rule: #booleanExpression.
+	self deny: expression value.
+	
 ]
 
 { #category : #'tests-expressions' }
@@ -95,7 +113,14 @@ JbParserTest >> testExpression [
 	exp := self parse: 'function (a,b,something,nothing) { }' rule: #expression.
 	self assert: exp parameters size equals: 4.
 	exp := self parse: 'x == 1' rule: #expression.
-	self assert: exp operator equals: '=='
+	self assert: exp operator equals: '=='.
+	exp := self parse: 'true' rule: #expression.
+	self assert: exp value.
+	exp := self parse: 'false' rule: #expression.
+	self deny: exp value.
+	exp := self parse: 'foo(1,2,3)' rule: #expression.
+	self assert: exp identifier equals: 'foo'
+
 ]
 
 { #category : #'tests-expressions' }
@@ -177,11 +202,13 @@ JbParserTest >> testNumberExpression [
 JbParserTest >> testProgram [ 
 
 	| pgm |
-	pgm := self parse: 'var x = function(x) { var z = 22; var y = z + 1; };
-var lmnop123 = 9 * 2 + 44;'.
-	self assert: pgm statements size equals: 2.
+	pgm := self parse: 'var x = function(x) { var z = 22; var y = z + 1; return x*z; };
+var lmnop123 = 9 * 2 + 44; var z = x(99);'.
+	self assert: pgm statements size equals: 3.
 	self assert: pgm statements first identifier equals: 'x'.
-	self assert: pgm statements second identifier equals: 'lmnop123'
+	self assert: pgm statements second identifier equals: 'lmnop123'.
+	self assert: pgm statements third identifier equals: 'z'.
+	self assert: pgm statements third expression identifier equals: 'x'
 ]
 
 { #category : #'tests-statements' }
@@ -203,7 +230,9 @@ JbParserTest >> testStatement [
 	self assert: stmt condition operator equals: '=='.
 	stmt := self parse: 'if (zebra > 12) {}' rule: #statement.
 	self assert: stmt condition operator equals: '>'.
-	self assert: stmt condition lhs identifier equals: 'zebra'
+	self assert: stmt condition lhs identifier equals: 'zebra'.
+	stmt := self parse: 'return x*y+1' rule: #statement.
+	self assert: stmt expression lhs lhs identifier equals: 'x'
 ]
 
 { #category : #'tests-statements' }
@@ -213,7 +242,8 @@ JbParserTest >> testStatementBlock [
 	blk := self parse: '{ x = 1; var y = 23 * x; }' rule: #statementBlock.
 	self assert: blk size equals: 2.
 	self assert: blk first identifier equals: 'x'.
-	self assert: blk second identifier equals: 'y'
+	self assert: blk second identifier equals: 'y'.
+	blk := self parse: '{ var z = 22; var y = z + 1; return 1; }' rule: #statementBlock
 ]
 
 { #category : #'tests-expressions' }
