@@ -149,6 +149,15 @@ JbParserTest >> testFunctionCallExpression [
 	self assert: call arguments isEmpty.
 ]
 
+{ #category : #'tests-statements' }
+JbParserTest >> testFunctionCallStatement [
+
+	| stmt |
+	stmt := self parse: 'banana("monkey", 12, 3+2);' rule: #functionCallStatement.
+	self assert: stmt identifier equals: 'banana'.
+	self assert: stmt arguments size equals: 3
+]
+
 { #category : #'tests-expressions' }
 JbParserTest >> testIdentifierExpression [
 
@@ -203,12 +212,13 @@ JbParserTest >> testProgram [
 
 	| pgm |
 	pgm := self parse: 'var x = function(x) { var z = 22; var y = z + 1; return x*z; };
-var lmnop123 = 9 * 2 + 44; var z = x(99);'.
-	self assert: pgm statements size equals: 3.
+var lmnop123 = 9 * 2 + 44; var z = x(99); banana("monkey", 12, 3+2);'.
+	self assert: pgm statements size equals: 4.
 	self assert: pgm statements first identifier equals: 'x'.
 	self assert: pgm statements second identifier equals: 'lmnop123'.
 	self assert: pgm statements third identifier equals: 'z'.
-	self assert: pgm statements third expression identifier equals: 'x'
+	self assert: pgm statements third expression identifier equals: 'x'.
+	self assert: pgm statements fourth identifier equals: 'banana'
 ]
 
 { #category : #'tests-statements' }

@@ -138,7 +138,8 @@ Class {
 		'program',
 		'stringExpression',
 		'stringComparisonExpression',
-		'booleanExpression'
+		'booleanExpression',
+		'functionCallStatement'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -289,6 +290,17 @@ JbParser >> functionCallExpression [
 				yourself ]
 ]
 
+{ #category : #expressions }
+JbParser >> functionCallStatement [
+
+	^ (identifier , $( asParser trim , expressionList , $) asParser trim) , $; asParser trim
+		==> [ :arr | 
+			JbFunctionCallNode new
+				identifier: arr first;
+				arguments: arr third;
+				yourself ]
+]
+
 { #category : #'low-level' }
 JbParser >> identifier [ 
 
@@ -405,7 +417,7 @@ JbParser >> start [
 JbParser >> statement [
 
 	^ variableDeclarationStatement / assignmentStatement
-		/ ifElseStatement / ifStatement / returnStatement
+		/ ifElseStatement / ifStatement / returnStatement / functionCallStatement
 ]
 
 { #category : #statements }
