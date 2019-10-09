@@ -214,7 +214,7 @@ var lmnop123 = 9 * 2 + 44; var z = x(99);'.
 { #category : #'tests-statements' }
 JbParserTest >> testReturnStatement [
 	| func |
-	func := self parse: 'return 37' rule: #returnStatement.
+	func := self parse: 'return 37;' rule: #returnStatement.
 	self assert: func expression value equals: 37
 ]
 
@@ -231,7 +231,7 @@ JbParserTest >> testStatement [
 	stmt := self parse: 'if (zebra > 12) {}' rule: #statement.
 	self assert: stmt condition operator equals: '>'.
 	self assert: stmt condition lhs identifier equals: 'zebra'.
-	stmt := self parse: 'return x*y+1' rule: #statement.
+	stmt := self parse: 'return x*y+1;' rule: #statement.
 	self assert: stmt expression lhs lhs identifier equals: 'x'
 ]
 
