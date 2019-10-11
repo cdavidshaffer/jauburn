@@ -157,7 +157,6 @@ JbParser >> anonymousFunctionExpression [
 		, $) asParser trim , statementBlock)
 		==> [ :t | 
 			JbFunctionNode new
-				name: nil;
 				parameters: t third;
 				body: t fifth;
 				yourself ]

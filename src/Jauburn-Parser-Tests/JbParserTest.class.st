@@ -14,7 +14,6 @@ JbParserTest >> parserClass [
 JbParserTest >> testAnonymousFunctionDefinitionWithAssignment [
 	| func |
 	func := self parse: 'function () {x = 22;}' rule: #anonymousFunctionExpression.
-	self assert: func name isNil.
 	self assert: func body notEmpty.
 	self assert: func body first identifier equals: 'x'
 ]
@@ -24,11 +23,9 @@ JbParserTest >> testAnonymousFunctionExpression [
 
 	| f |
 	f := self parse: 'function (x,y,z) { }' rule: #anonymousFunctionExpression.
-	self assert: f name isNil.
 	self assert: f body isEmpty.
 	self assert: f parameters size equals: 3.
 	f := self parse: 'function (a,b,something,nothing) { }' rule: #anonymousFunctionExpression.
-	self assert: f name isNil.
 	self assert: f body isEmpty.
 	self assert: f parameters size equals: 4.
 	self fail: 'function (x+1) { }' rule: #anonymousFunctionExpression.
