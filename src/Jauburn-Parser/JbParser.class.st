@@ -390,7 +390,7 @@ JbParser >> numberExpression [
 { #category : #accessing }
 JbParser >> program [
 
-	^ statement star
+	^ statement trim star
 		==> [ :stmts | 
 			JbProgramNode new
 				statements: stmts;
