@@ -394,11 +394,10 @@ JbParser >> stringExpression [
 { #category : #statements }
 JbParser >> variableDeclarationStatement [
 
-	^ ('var' asParser , identifier , $= asParser trim , expression
-		, $; asParser trim)
-		==> [ :arr | 
-			JbVariableDeclarationStatementNode new
-				identifier: arr second;
-				expression: arr fourth;
-				yourself ]
+	^ 'var' asParser , #space asParser , identifier , $= asParser trim
+	  , expression , $; asParser trim ==> [ :arr | 
+	  JbVariableDeclarationStatementNode new
+		  identifier: arr third;
+		  expression: arr fifth;
+		  yourself ]
 ]
