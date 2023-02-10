@@ -51,7 +51,7 @@ JbArithmeticParserTest >> testNumberExpression [
 	"Numbers are tested in JbNumberParserTest.  Here we just make sure that the full parser can parse a number."
 
 	self
-		assert: (self parse: '15' rule: #numberExpression) value
-		equals: 15.
+		assertNode: (self parse: '15' rule: #numberExpression) 
+		isConstant: 15.
 	self fail: 'abc' rule: #numberExpression
 ]
