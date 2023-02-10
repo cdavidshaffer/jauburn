@@ -252,21 +252,18 @@ JbParser >> functionCallStatement [
 				yourself ]
 ]
 
-{ #category : #'low-level' }
-JbParser >> identifier [ 
+{ #category : #expressions }
+JbParser >> identifier [
 
-	^(#letter asParser , (#letter asParser / #digit asParser / 
-			$_ asParser) star) flatten trim
+	^ (self dependencyAt: JbArithmeticExpressionParser)
+		  identifier
 ]
 
 { #category : #expressions }
 JbParser >> identifierExpression [
 
-	^ identifier
-		==> [ :arr | 
-			JbIdentifierExpressionNode new
-				identifier: arr;
-				yourself ]
+	^  (self dependencyAt: JbArithmeticExpressionParser)
+		  identifierExpression
 ]
 
 { #category : #expressions }
