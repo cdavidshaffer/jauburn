@@ -12,13 +12,13 @@ Class {
 	#category : #'Jauburn-Parser-Core'
 }
 
-{ #category : #'factory-chars' }
+{ #category : #'non-terminals' }
 JbNumberParser >> digit [
 
 	^$0 asParser / digitNotZero
 ]
 
-{ #category : #'factory-chars' }
+{ #category : #'non-terminals' }
 JbNumberParser >> digitNotZero [
 
 	^$1 asParser / $2 asParser / $3 asParser 
@@ -26,7 +26,7 @@ JbNumberParser >> digitNotZero [
 								/ $7 asParser / $8 asParser / $9 asParser
 ]
 
-{ #category : #'factory-chars' }
+{ #category : #'non-terminals' }
 JbNumberParser >> integer [
 
 	^($- asParser optional , digitNotZero , digit star / $0 asParser) flatten 

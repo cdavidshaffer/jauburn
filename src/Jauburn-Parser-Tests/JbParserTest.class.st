@@ -98,12 +98,18 @@ JbParserTest >> testComparisonExpression [
 ]
 
 { #category : #'tests-expressions' }
-JbParserTest >> testExpression [ 
+JbParserTest >> testExpression [
+
+	"Arithmetic expressions are tested elsewhere.  This test includes one such expression but otherwise focuses on other types of expressions."
 
 	| exp |
 	exp := self parse: '3+4' rule: #expression.
-	self assert: exp lhs value equals: 3.
-	exp := self parse: 'function (a,b,something,nothing) { }' rule: #expression.
+	self assertNode: exp lhs isConstant: 3.
+	self assertNode: exp isOperator: $+.
+	self assertNode: exp rhs isConstant: 4.
+	exp := self
+		       parse: 'function (a,b,something,nothing) { }'
+		       rule: #expression.
 	self assert: exp parameters size equals: 4.
 	exp := self parse: 'x == 1' rule: #expression.
 	self assert: exp operator equals: '=='.
@@ -113,7 +119,6 @@ JbParserTest >> testExpression [
 	self deny: exp value.
 	exp := self parse: 'foo(1,2,3)' rule: #expression.
 	self assert: exp identifier equals: 'foo'
-
 ]
 
 { #category : #'tests-expressions' }
@@ -227,12 +232,12 @@ JbParserTest >> testReturnStatement [
 ]
 
 { #category : #'tests-statements' }
-JbParserTest >> testStatement [ 
+JbParserTest >> testStatement [
 
 	| stmt |
 	stmt := self parse: 'var monkey = -1231 + x;' rule: #statement.
 	self assert: stmt identifier equals: 'monkey'.
-	stmt := self parse: 'zebra = 3 *x - 1;' rule: #statement.
+	stmt := self parse: 'zebra = 3 *x + 1;' rule: #statement.
 	self assert: stmt identifier equals: 'zebra'.
 	stmt := self parse: 'if (x == 2) {} else {}' rule: #statement.
 	self assert: stmt condition operator equals: '=='.

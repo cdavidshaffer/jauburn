@@ -21,7 +21,7 @@ JbArithmeticExpressionParser class >> dependencies [
 	^ { JbNumberParser }
 ]
 
-{ #category : #expressions }
+{ #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticExpression [
 
 	^ arithmeticProduct , '+' asParser trim , arithmeticExpression
@@ -31,16 +31,10 @@ JbArithmeticExpressionParser >> arithmeticExpression [
 			  operator: $+;
 			  rhs: arr third;
 			  yourself ]
-	  / (arithmeticProduct , '-' asParser trim , arithmeticExpression
-		   ==> [ :arr | 
-			   JbArity2OperatorNode new
-				   lhs: arr first;
-				   operator: $-;
-				   rhs: arr third;
-				   yourself ]) / arithmeticProduct
+	   / arithmeticProduct
 ]
 
-{ #category : #expressions }
+{ #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticPrimitive [
 
 	^ '(' asParser trim , arithmeticExpression , ')' asParser trim
@@ -52,7 +46,7 @@ JbArithmeticExpressionParser >> arithmeticPrimitive [
 			   yourself ]) / identifierExpression
 ]
 
-{ #category : #expressions }
+{ #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticProduct [
 
 	^ arithmeticPrimitive , $* asParser trim , arithmeticProduct
@@ -62,16 +56,10 @@ JbArithmeticExpressionParser >> arithmeticProduct [
 			  operator: $*;
 			  rhs: arr third;
 			  yourself ]
-	  / (arithmeticPrimitive , $/ asParser trim , arithmeticProduct
-		   ==> [ :arr | 
-			   JbArity2OperatorNode new
-				   lhs: arr first;
-				   operator: $/;
-				   rhs: arr third;
-				   yourself ]) / arithmeticPrimitive
+	  / arithmeticPrimitive
 ]
 
-{ #category : #expressions }
+{ #category : #'non-terminals' }
 JbArithmeticExpressionParser >> identifier [
 
 	^ (#letter asParser
@@ -79,7 +67,7 @@ JbArithmeticExpressionParser >> identifier [
 		  trim
 ]
 
-{ #category : #expressions }
+{ #category : #'non-terminals' }
 JbArithmeticExpressionParser >> identifierExpression [
 
 	^ identifier ==> [ :arr | 
@@ -88,7 +76,7 @@ JbArithmeticExpressionParser >> identifierExpression [
 		  yourself ]
 ]
 
-{ #category : #expressions }
+{ #category : #'non-terminals' }
 JbArithmeticExpressionParser >> numberExpression [
 
 	^ (self dependencyAt: JbNumberParser) integer ==> [ :n | 
