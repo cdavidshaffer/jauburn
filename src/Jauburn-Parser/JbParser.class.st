@@ -145,7 +145,9 @@ Class {
 { #category : #accessing }
 JbParser class >> dependencies [
 
-	^{JbNumberParser }
+	^ { 
+	
+		  JbArithmeticExpressionParser }
 ]
 
 { #category : #expressions }

@@ -15,6 +15,12 @@ Class {
 	#category : #'Jauburn-Parser-Core'
 }
 
+{ #category : #accessing }
+JbArithmeticExpressionParser class >> dependencies [
+
+	^ { JbNumberParser }
+]
+
 { #category : #expressions }
 JbArithmeticExpressionParser >> arithmeticExpression [
 
