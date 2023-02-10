@@ -120,14 +120,12 @@ Class {
 		'identifier',
 		'expression',
 		'assignmentStatement',
-		'numberExpression',
 		'anonymousFunctionExpression',
 		'returnStatement',
 		'ifStatement',
 		'identifierExpression',
 		'comparisonExpression',
 		'arithmeticExpression',
-		'keyword',
 		'expressionList',
 		'functionCallExpression',
 		'identifierExpressionList',
@@ -165,55 +163,7 @@ JbParser >> anonymousFunctionExpression [
 { #category : #expressions }
 JbParser >> arithmeticExpression [
 
-	| exp parens |
-	exp := PPExpressionParser new.
-	parens := ($( asParser trim , exp , $) asParser trim)
-		==> [ :nodes | nodes second ].
-	exp term: parens / numberExpression / identifierExpression.
-	exp
-		group: [ :g | 
-			g
-				prefix: $- asParser trim
-				do: [ :op :a | 
-					JbArity1OperatorNode new
-						operator: op;
-						operand: a;
-						yourself ] ];
-		group: [ :g | 
-			g
-				left: $* asParser trim
-				do: [ :a :op :b | 
-					JbArity2OperatorNode new
-						operator: op;
-						lhs: a;
-						rhs: b;
-						yourself ].
-			g
-				left: $/ asParser trim
-				do: [ :a :op :b | 
-					JbArity2OperatorNode new
-						operator: op;
-						lhs: a;
-						rhs: b;
-						yourself ] ];
-		group: [ :g | 
-			g
-				left: $+ asParser trim
-				do: [ :a :op :b | 
-					JbArity2OperatorNode new
-						operator: op;
-						lhs: a;
-						rhs: b;
-						yourself ].
-			g
-				left: $- asParser trim
-				do: [ :a :op :b | 
-					JbArity2OperatorNode new
-						operator: op;
-						lhs: a;
-						rhs: b;
-						yourself ] ].
-	^ exp
+	^(self dependencyAt: JbArithmeticExpressionParser) arithmeticExpression
 ]
 
 { #category : #statements }
@@ -289,7 +239,7 @@ JbParser >> functionCallExpression [
 				yourself ]
 ]
 
-{ #category : #expressions }
+{ #category : #statements }
 JbParser >> functionCallStatement [
 
 	^ (identifier , $( asParser trim , expressionList , $) asParser trim) , $; asParser trim
@@ -377,17 +327,7 @@ JbParser >> keyword [
 	/ 'function' asParser
 ]
 
-{ #category : #expressions }
-JbParser >> numberExpression [
-
-	^ (self dependencyAt: JbNumberParser) integer
-		==> [ :n | 
-			JbConstantExpressionNode new
-				value: n;
-				yourself ]
-]
-
-{ #category : #accessing }
+{ #category : #statements }
 JbParser >> program [
 
 	^ statement trim star
@@ -416,7 +356,8 @@ JbParser >> start [
 JbParser >> statement [
 
 	^ variableDeclarationStatement / assignmentStatement
-		/ ifElseStatement / ifStatement / returnStatement / functionCallStatement
+	  / ifElseStatement / ifStatement /  returnStatement
+	  / functionCallStatement
 ]
 
 { #category : #statements }

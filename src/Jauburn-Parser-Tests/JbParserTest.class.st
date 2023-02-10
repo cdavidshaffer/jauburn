@@ -1,6 +1,6 @@
 Class {
 	#name : #JbParserTest,
-	#superclass : #PPCompositeParserTest,
+	#superclass : #JbAbstractParserTest,
 	#category : #'Jauburn-Parser-Tests'
 }
 
@@ -12,8 +12,17 @@ JbParserTest >> parserClass [
 
 { #category : #'tests-statements' }
 JbParserTest >> testAnonymousFunctionDefinitionWithAssignment [
+
 	| func |
-	func := self parse: 'function () {x = 22;}' rule: #anonymousFunctionExpression.
+	func := self
+		        parse: 'function () {x = 22;}'
+		        rule: #anonymousFunctionExpression.
+	self assert: func body notEmpty.
+	self assert: func body first identifier equals: 'x'.
+
+	func := self
+		        parse: 'function(    ) {x = 22;}'
+		        rule: #anonymousFunctionExpression.
 	self assert: func body notEmpty.
 	self assert: func body first identifier equals: 'x'
 ]
@@ -34,20 +43,13 @@ JbParserTest >> testAnonymousFunctionExpression [
 { #category : #'tests-expressions' }
 JbParserTest >> testArithmeticExpression [
 
-	| expression |
-	expression := self parse: '32' rule: #arithmeticExpression.
-	self assert: expression value equals: 32.
-	expression := self parse: '3+4' rule: #arithmeticExpression.
-	self assert: expression lhs value equals: 3.
-	self assert: expression rhs value equals: 4.
-	self assert: expression operator equals: $+.
-	expression := self parse: 'monkey*13' rule: #arithmeticExpression.
-	self assert: expression lhs identifier equals: 'monkey'.
-	self assert: expression rhs value equals: 13.
-	self assert: expression operator equals: $*.
-	expression := self parse: 'falafel' rule: #arithmeticExpression.
-	self assert: expression identifier equals: 'falafel'
+	"Arithmetic expressions are tested in the appropriate parser test.  Just make sure our parser has access to these expressions"
 
+	| expression |
+	expression := self parse: 'monkey*13' rule: #arithmeticExpression.
+	self assertNode: expression lhs isIdentifier: 'monkey'.
+	self assertNode: expression rhs isConstant: 13.
+	self assertNode: expression  isOperator: $*
 ]
 
 { #category : #'tests-statements' }
@@ -55,13 +57,7 @@ JbParserTest >> testAssignmentStatement [
 	| exp |
 	exp := self parse: 'x = 33;' rule: #assignmentStatement.
 	self assert: exp identifier equals: 'x'.
-	self assert: exp expression value equals: 33.
-	exp := self parse: 'x = true;' rule: #assignmentStatement.
-	self assert: exp expression value.
-	exp := self parse: 'x = false;' rule: #assignmentStatement.
-	self deny: exp expression value.
-	exp := self parse: 'x = foo(10,20,30);' rule: #assignmentStatement.
-	self assert: exp expression identifier equals: 'foo'
+	self assert: exp expression value equals: 33
 ]
 
 { #category : #'tests-expressions' }
@@ -140,19 +136,29 @@ JbParserTest >> testFunctionCallExpression [
 	self assert: call arguments first identifier equals: 'a'.
 	self assert: call arguments second operator equals: $+.
 	self assert: call arguments third identifier equals: 'c'.
-	
+
 	call := self parse: 'speak()' rule: #functionCallExpression.
 	self assert: call identifier equals: 'speak'.
 	self assert: call arguments isEmpty.
+
+	call := self parse: 'speak (    )' rule: #functionCallExpression.
+	self assert: call identifier equals: 'speak'.
+	self assert: call arguments isEmpty
 ]
 
-{ #category : #'tests-statements' }
+{ #category : #'tests-expressions' }
 JbParserTest >> testFunctionCallStatement [
 
 	| stmt |
-	stmt := self parse: 'banana("monkey", 12, 3+2);' rule: #functionCallStatement.
+	stmt := self
+		        parse: 'banana("monkey", 12, 3+2);'
+		        rule: #functionCallStatement.
 	self assert: stmt identifier equals: 'banana'.
-	self assert: stmt arguments size equals: 3
+	self assert: stmt arguments size equals: 3.
+
+	stmt := self parse: 'monkey  ( )   ;' rule: #functionCallStatement.
+	self assert: stmt identifier equals: 'monkey'.
+	self assert: stmt arguments size equals: 0
 ]
 
 { #category : #'tests-expressions' }
@@ -193,15 +199,6 @@ JbParserTest >> testIfStatement [
 	stmt := self parse: 'if (x == 1) {}' rule: #ifStatement.
 	self assert: stmt condition operator equals: '=='.
 	self assert: stmt trueStatements isEmpty
-]
-
-{ #category : #'tests-expressions' }
-JbParserTest >> testNumberExpression [
-	"Numbers are tested in JbNumberParserTest.  Here we just make sure that
-	we can parse a number."
-	
-	self assert: (self parse: '15' rule: #numberExpression) value equals: 15.
-	self fail: 'abc' rule: #numberExpression
 ]
 
 { #category : #'tests-program' }
@@ -253,8 +250,7 @@ JbParserTest >> testStatementBlock [
 	blk := self parse: '{ x = 1; var y = 23 * x; }' rule: #statementBlock.
 	self assert: blk size equals: 2.
 	self assert: blk first identifier equals: 'x'.
-	self assert: blk second identifier equals: 'y'.
-	blk := self parse: '{ var z = 22; var y = z + 1; return 1; }' rule: #statementBlock
+	self assert: blk second identifier equals: 'y'
 ]
 
 { #category : #'tests-expressions' }

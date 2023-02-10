@@ -33,7 +33,7 @@ JbNumberParser >> integer [
 			==> [ :str | str asNumber ]
 ]
 
-{ #category : #'factory-chars' }
+{ #category : #accessing }
 JbNumberParser >> start [
 	"Answer the production to start this parser with."
 
