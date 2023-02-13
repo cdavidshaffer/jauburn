@@ -5,12 +5,12 @@ Class {
 	#name : #JbArithmeticExpressionParser,
 	#superclass : #PPCompositeParser,
 	#instVars : [
-		'arithmeticProduct',
 		'arithmeticExpression',
 		'numberExpression',
 		'identifierExpression',
 		'identifier',
-		'arithmeticTerm'
+		'arithmeticTerm',
+		'arithmeticFactor'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -24,14 +24,13 @@ JbArithmeticExpressionParser class >> dependencies [
 { #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticExpression [
 
-	^ arithmeticProduct , '+' asParser trim , arithmeticExpression
+	^ arithmeticTerm , '+' asParser trim , arithmeticExpression
 	  ==> [ :arr | 
 		  JbArity2OperatorNode new
 			  lhs: arr first;
 			  operator: $+;
 			  rhs: arr third;
-			  yourself ]
-	   / arithmeticProduct
+			  yourself ] / arithmeticTerm
 ]
 
 { #category : #'non-terminals' }
@@ -49,14 +48,12 @@ JbArithmeticExpressionParser >> arithmeticFactor [
 { #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticTerm [
 
-	^ arithmeticTerm , $* asParser trim , arithmeticProduct
-	  ==> [ :arr | 
-		  JbArity2OperatorNode new
-			  lhs: arr first;
-			  operator: $*;
-			  rhs: arr third;
-			  yourself ]
-	  / arithmeticTerm
+	^ arithmeticFactor , $* asParser trim , arithmeticTerm ==> [ :arr | 
+	  JbArity2OperatorNode new
+		  lhs: arr first;
+		  operator: $*;
+		  rhs: arr third;
+		  yourself ] / arithmeticFactor 
 ]
 
 { #category : #'non-terminals' }
