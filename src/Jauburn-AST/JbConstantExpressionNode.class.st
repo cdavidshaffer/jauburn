@@ -1,6 +1,6 @@
 Class {
 	#name : #JbConstantExpressionNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'value'
 	],

@@ -1,6 +1,6 @@
 Class {
 	#name : #JbFunctionCallNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'identifier',
 		'arguments'

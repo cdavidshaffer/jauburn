@@ -1,6 +1,6 @@
 Class {
 	#name : #JbIdentifierExpressionNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'identifier'
 	],

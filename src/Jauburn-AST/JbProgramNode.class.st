@@ -1,6 +1,6 @@
 Class {
 	#name : #JbProgramNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'statements'
 	],

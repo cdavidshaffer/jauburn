@@ -1,6 +1,6 @@
 Class {
 	#name : #JbAssignmentStatementNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'identifier',
 		'expression'

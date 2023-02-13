@@ -1,6 +1,6 @@
 Class {
 	#name : #JbReturnStatementNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'expression'
 	],

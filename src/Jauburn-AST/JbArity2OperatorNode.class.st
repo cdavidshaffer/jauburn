@@ -1,6 +1,6 @@
 Class {
 	#name : #JbArity2OperatorNode,
-	#superclass : #Object,
+	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'operator',
 		'lhs',
