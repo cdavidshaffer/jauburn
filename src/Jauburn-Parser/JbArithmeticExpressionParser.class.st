@@ -6,11 +6,11 @@ Class {
 	#superclass : #PPCompositeParser,
 	#instVars : [
 		'arithmeticProduct',
-		'arithmeticPrimitive',
 		'arithmeticExpression',
 		'numberExpression',
 		'identifierExpression',
-		'identifier'
+		'identifier',
+		'arithmeticTerm'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -35,7 +35,7 @@ JbArithmeticExpressionParser >> arithmeticExpression [
 ]
 
 { #category : #'non-terminals' }
-JbArithmeticExpressionParser >> arithmeticPrimitive [
+JbArithmeticExpressionParser >> arithmeticFactor [
 
 	^ '(' asParser trim , arithmeticExpression , ')' asParser trim
 	  ==> [ :arr | arr second ] / numberExpression
@@ -47,16 +47,16 @@ JbArithmeticExpressionParser >> arithmeticPrimitive [
 ]
 
 { #category : #'non-terminals' }
-JbArithmeticExpressionParser >> arithmeticProduct [
+JbArithmeticExpressionParser >> arithmeticTerm [
 
-	^ arithmeticPrimitive , $* asParser trim , arithmeticProduct
+	^ arithmeticTerm , $* asParser trim , arithmeticProduct
 	  ==> [ :arr | 
 		  JbArity2OperatorNode new
 			  lhs: arr first;
 			  operator: $*;
 			  rhs: arr third;
 			  yourself ]
-	  / arithmeticPrimitive
+	  / arithmeticTerm
 ]
 
 { #category : #'non-terminals' }
