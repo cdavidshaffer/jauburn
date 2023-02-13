@@ -122,7 +122,6 @@ Class {
 		'assignmentStatement',
 		'anonymousFunctionExpression',
 		'returnStatement',
-		'ifStatement',
 		'identifierExpression',
 		'comparisonExpression',
 		'arithmeticExpression',
@@ -130,7 +129,6 @@ Class {
 		'functionCallExpression',
 		'identifierExpressionList',
 		'statementBlock',
-		'ifElseStatement',
 		'statement',
 		'variableDeclarationStatement',
 		'program',
@@ -283,41 +281,6 @@ JbParser >> identifierExpressionList [
 					result ] ]
 ]
 
-{ #category : #statements }
-JbParser >> ifElseStatement [
-
-	^'if' asParser trim
-	, $( asParser trim
-	, expression
-	, $) asParser trim 
-	, statementBlock
-	, 'else' asParser trim 
-	, statementBlock
-		 ==>
-		[ :arr |
-			JbIfElseNode new
-				condition: arr third;
-				trueStatements: arr fifth;
-				falseStatements: arr seventh;
-				yourself ]
-]
-
-{ #category : #statements }
-JbParser >> ifStatement [
-
-	^'if' asParser trim
-	, $( asParser trim
-	, expression
-	, $) asParser trim 
-	, statementBlock
-		 ==>
-		[ :arr |
-			JbIfNode new
-				condition: arr third;
-				trueStatements: arr fifth;
-				yourself ]
-]
-
 { #category : #'low-level' }
 JbParser >> keyword [ 
 
@@ -355,7 +318,7 @@ JbParser >> start [
 JbParser >> statement [
 
 	^ variableDeclarationStatement / assignmentStatement
-	  / ifElseStatement / ifStatement /  returnStatement
+	   / returnStatement
 	  / functionCallStatement
 ]
 

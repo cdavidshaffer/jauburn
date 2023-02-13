@@ -182,30 +182,6 @@ JbParserTest >> testIdentifierExpressionList [
 	self assert: (self parse: '' rule: #identifierExpressionList) size equals: 0
 ]
 
-{ #category : #'tests-statements' }
-JbParserTest >> testIfElseStatement [
-
-	| stmt |
-	stmt := self parse: 'if (x+99 < 1) {} else {}' rule: #ifElseStatement.
-	self assert: stmt condition operator equals: '<'.
-	self assert: stmt trueStatements isEmpty.
-	self assert: stmt falseStatements isEmpty.
-	
-	stmt := self parse: 'if ("hello" == "goodbye") { x = 2; } else { y = 3; }' rule: #ifElseStatement.
-	self assert: stmt condition operator equals: '=='.
-	self deny: stmt trueStatements isEmpty.
-	self deny: stmt falseStatements isEmpty.
-]
-
-{ #category : #'tests-statements' }
-JbParserTest >> testIfStatement [
-
-	| stmt |
-	stmt := self parse: 'if (x == 1) {}' rule: #ifStatement.
-	self assert: stmt condition operator equals: '=='.
-	self assert: stmt trueStatements isEmpty
-]
-
 { #category : #'tests-program' }
 JbParserTest >> testProgram [ 
 
@@ -239,11 +215,6 @@ JbParserTest >> testStatement [
 	self assert: stmt identifier equals: 'monkey'.
 	stmt := self parse: 'zebra = 3 *x + 1;' rule: #statement.
 	self assert: stmt identifier equals: 'zebra'.
-	stmt := self parse: 'if (x == 2) {} else {}' rule: #statement.
-	self assert: stmt condition operator equals: '=='.
-	stmt := self parse: 'if (zebra > 12) {}' rule: #statement.
-	self assert: stmt condition operator equals: '>'.
-	self assert: stmt condition lhs identifier equals: 'zebra'.
 	stmt := self parse: 'return x*y+1;' rule: #statement.
 	self assert: stmt expression lhs lhs identifier equals: 'x'
 ]
