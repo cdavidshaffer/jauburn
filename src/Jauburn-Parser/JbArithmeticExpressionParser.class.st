@@ -37,11 +37,7 @@ JbArithmeticExpressionParser >> arithmeticFactor [
 
 	^ '(' asParser trim , arithmeticExpression , ')' asParser trim
 	  ==> [ :arr | arr second ] / numberExpression
-	  / ('-' asParser trim , identifierExpression ==> [ :arr | 
-		   JbArity1OperatorNode new
-			   operand: arr second;
-			   operator: $-;
-			   yourself ]) / identifierExpression
+	   / identifierExpression
 ]
 
 { #category : #'non-terminals' }

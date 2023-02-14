@@ -29,14 +29,7 @@ JbArithmeticParserTest >> testArithmeticExpression [
 	expression := self parse: 'a * b * c' rule: #arithmeticExpression.
 	self assertNode: expression lhs isIdentifier: 'a'.
 	self assertNode: expression isOperator: $*.
-	expression := self parse: '-banana' rule: #arithmeticExpression.
-	self assertNode: expression isOperator: $-.
-	self assert: expression operand identifier equals: 'banana'.
-	expression := self parse: '3*-x' rule: #arithmeticExpression.
-	self assertNode: expression rhs isOperator: $-.
-	self assertNode: expression rhs operand isIdentifier: 'x'.
-	self fail: '-x---y' rule: #arithmeticExpression.
-	self fail: '--x' rule: #arithmeticExpression
+
 ]
 
 { #category : #tests }
