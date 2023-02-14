@@ -27,15 +27,31 @@ JbInterpreter >> initialize [
 ]
 
 { #category : #api }
-JbInterpreter >> interpret: ast [
+JbInterpreter >> interpret: programString [
 
-	^ast executeIn: environment 
+	| ast |
+	ast := self parse: programString.
+	self interpretAst: ast
+]
+
+{ #category : #api }
+JbInterpreter >> interpretAst: ast [
+
+	^ ast executeIn: environment
+]
+
+{ #category : #api }
+JbInterpreter >> parse: programString [
+
+	| parser |
+	parser := JbParser new.
+	^(parser parse: programString)
 ]
 
 { #category : #api }
 JbInterpreter >> run: programString [
 
-	| parser |
-	parser := JbParser new.
-	self interpret: (parser parse: programString)
+	"Just an alias for #interpret:"
+
+	self interpret: programString
 ]

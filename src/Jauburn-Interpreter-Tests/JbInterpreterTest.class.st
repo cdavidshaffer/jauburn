@@ -11,10 +11,7 @@ Class {
 { #category : #utilities }
 JbInterpreterTest >> interpret: aString [
 
-	| ast |
-	ast :=  parser parse: aString.
-	^interpreter interpret: ast.
-	
+	^ interpreter interpret: aString
 ]
 
 { #category : #running }
@@ -22,6 +19,13 @@ JbInterpreterTest >> setUp [
 
 	parser := JbParser new.
 	interpreter := JbInterpreter new
+]
+
+{ #category : #running }
+JbInterpreterTest >> testAssignmentChangesVariableToExpressionValue [
+
+	self interpret: 'var x = 3 + 2 * 8; x = 99;'.
+	self assert: (interpreter environment at: 'x') equals: 99.
 ]
 
 { #category : #running }

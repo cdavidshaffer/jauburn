@@ -135,7 +135,8 @@ Class {
 		'stringExpression',
 		'stringComparisonExpression',
 		'booleanExpression',
-		'functionCallStatement'
+		'functionCallStatement',
+		'printStatement'
 	],
 	#category : #'Jauburn-Parser-Core'
 }
@@ -293,6 +294,14 @@ JbParser >> keyword [
 ]
 
 { #category : #statements }
+JbParser >> printStatement [
+
+	^ ('print' asParser , #space asParser) trim , arithmeticExpression
+	  , ';' asParser trim
+	  ==> [ :arr | JbPrintStatementNode new expression: arr second ]
+]
+
+{ #category : #statements }
 JbParser >> program [
 
 	^ statement trim star
@@ -321,8 +330,7 @@ JbParser >> start [
 JbParser >> statement [
 
 	^ variableDeclarationStatement / assignmentStatement
-	   / returnStatement
-	  / functionCallStatement
+	  / returnStatement / functionCallStatement / printStatement
 ]
 
 { #category : #statements }
@@ -360,10 +368,10 @@ JbParser >> stringExpression [
 { #category : #statements }
 JbParser >> variableDeclarationStatement [
 
-	^ 'var' asParser , #space asParser , identifier , $= asParser trim
-	  , expression , $; asParser trim ==> [ :arr | 
+	^ ('var' asParser , #space asParser) trim , identifier
+	  , $= asParser trim , expression , $; asParser trim ==> [ :arr | 
 	  JbVariableDeclarationStatementNode new
-		  identifier: arr third;
-		  expression: arr fifth;
+		  identifier: arr second;
+		  expression: arr fourth;
 		  yourself ]
 ]
