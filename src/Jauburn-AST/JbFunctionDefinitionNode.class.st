@@ -1,5 +1,5 @@
 Class {
-	#name : #JbFunctionNode,
+	#name : #JbFunctionDefinitionNode,
 	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
 		'body',
@@ -9,21 +9,21 @@ Class {
 }
 
 { #category : #accessing }
-JbFunctionNode >> body [
+JbFunctionDefinitionNode >> body [
 	^ body
 ]
 
 { #category : #accessing }
-JbFunctionNode >> body: anObject [
+JbFunctionDefinitionNode >> body: anObject [
 	body := anObject
 ]
 
 { #category : #accessing }
-JbFunctionNode >> parameters [
+JbFunctionDefinitionNode >> parameters [
 	^ parameters
 ]
 
 { #category : #accessing }
-JbFunctionNode >> parameters: anObject [
+JbFunctionDefinitionNode >> parameters: anObject [
 	parameters := anObject
 ]

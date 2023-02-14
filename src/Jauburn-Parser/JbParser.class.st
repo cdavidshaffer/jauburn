@@ -154,7 +154,7 @@ JbParser >> anonymousFunctionExpression [
 	^ ('function' asParser , $( asParser trim , identifierExpressionList
 		, $) asParser trim , statementBlock)
 		==> [ :t | 
-			JbFunctionNode new
+			JbFunctionDefinitionNode new
 				parameters: t third;
 				body: t fifth;
 				yourself ]
@@ -186,18 +186,21 @@ JbParser >> booleanExpression [
 { #category : #expressions }
 JbParser >> comparisonExpression [
 
-	^ (arithmeticExpression , '==' asParser trim , arithmeticExpression)
-		/ (arithmeticExpression , '<' asParser trim , arithmeticExpression)
-		/ (arithmeticExpression , '<=' asParser trim , arithmeticExpression)
-		/ (arithmeticExpression , '>' asParser trim , arithmeticExpression)
-		/ (arithmeticExpression , '>=' asParser trim , arithmeticExpression)
-		/ (arithmeticExpression , '!=' asParser trim , arithmeticExpression)
-		==> [ :arr | 
-			JbArity2OperatorNode new
-				lhs: arr first;
-				operator: arr second;
-				rhs: arr third;
-				yourself ]
+	^ arithmeticExpression , '==' asParser trim , arithmeticExpression
+	  / (arithmeticExpression , '<' asParser trim , arithmeticExpression)
+	  /
+	  (arithmeticExpression , '<=' asParser trim , arithmeticExpression)
+	  / (arithmeticExpression , '>' asParser trim , arithmeticExpression)
+	  /
+	  (arithmeticExpression , '>=' asParser trim , arithmeticExpression)
+	  /
+	  (arithmeticExpression , '!=' asParser trim , arithmeticExpression)
+	  ==> [ :arr | 
+		  JbNumericComparisonNode new
+			  lhs: arr first;
+			  operator: arr second;
+			  rhs: arr third;
+			  yourself ]
 ]
 
 { #category : #expressions }
@@ -334,14 +337,14 @@ JbParser >> statementBlock [
 { #category : #expressions }
 JbParser >> stringComparisonExpression [
 
-	^ (stringExpression , '==' asParser trim , stringExpression)
-		/ (stringExpression , '!=' asParser trim , stringExpression)
-		==> [ :arr | 
-			JbArity2OperatorNode new
-				lhs: arr first;
-				operator: arr second;
-				rhs: arr third;
-				yourself ]
+	^ stringExpression , '==' asParser trim , stringExpression
+	  / (stringExpression , '!=' asParser trim , stringExpression)
+	  ==> [ :arr | 
+		  JbNumericComparisonNode new
+			  lhs: arr first;
+			  operator: arr second;
+			  rhs: arr third;
+			  yourself ]
 ]
 
 { #category : #expressions }

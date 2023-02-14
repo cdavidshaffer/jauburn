@@ -2,7 +2,6 @@ Class {
 	#name : #JbArity2OperatorNode,
 	#superclass : #JbAbstractSyntaxTreeNode,
 	#instVars : [
-		'operator',
 		'lhs',
 		'rhs'
 	],
@@ -21,12 +20,8 @@ JbArity2OperatorNode >> lhs: anObject [
 
 { #category : #accessing }
 JbArity2OperatorNode >> operator [
-	^ operator
-]
 
-{ #category : #accessing }
-JbArity2OperatorNode >> operator: anObject [
-	operator := anObject
+	^ self subclassResponsibility 
 ]
 
 { #category : #accessing }

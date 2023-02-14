@@ -26,9 +26,8 @@ JbArithmeticExpressionParser >> arithmeticExpression [
 
 	^ arithmeticTerm , '+' asParser trim , arithmeticExpression
 	  ==> [ :arr | 
-		  JbArity2OperatorNode new
+		  JbAdditionNode new
 			  lhs: arr first;
-			  operator: $+;
 			  rhs: arr third;
 			  yourself ] / arithmeticTerm
 ]
@@ -49,11 +48,10 @@ JbArithmeticExpressionParser >> arithmeticFactor [
 JbArithmeticExpressionParser >> arithmeticTerm [
 
 	^ arithmeticFactor , $* asParser trim , arithmeticTerm ==> [ :arr | 
-	  JbArity2OperatorNode new
+	  JbMultiplicationNode new
 		  lhs: arr first;
-		  operator: $*;
 		  rhs: arr third;
-		  yourself ] / arithmeticFactor 
+		  yourself ] / arithmeticFactor
 ]
 
 { #category : #'non-terminals' }
