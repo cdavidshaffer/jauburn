@@ -44,12 +44,6 @@ JbEnvironment >> initialize [
 ]
 
 { #category : #accessing }
-JbEnvironment >> keys [
-
-	^bindings keys
-]
-
-{ #category : #accessing }
 JbEnvironment >> lookupAt: aKey put: aValue [
 
 	"Change the value of the binding whose key is aKey, but looking in the complete ancestor chain.
@@ -69,4 +63,10 @@ JbEnvironment >> lookupAt: aKey put: aValue [
 { #category : #accessing }
 JbEnvironment >> outerEnvironment: anEnvironment [
 	outerEnvironment := anEnvironment
+]
+
+{ #category : #accessing }
+JbEnvironment >> variableNames [
+
+	^ bindings keys
 ]

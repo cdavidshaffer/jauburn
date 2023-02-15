@@ -57,11 +57,12 @@ JbEnvironmentTest >> testSetAtRightLevel [
 
 { #category : #tests }
 JbEnvironmentTest >> testSetLookup [
+
 	outer at: #dad put: 'donald'.
 	inner at: #son put: 'riri'.
 	self assert: (inner at: #dad) = 'donald'.
 	inner lookupAt: #dad put: 'picsou'.
 	self assert: (outer at: #dad) = 'picsou'.
 	self assert: (inner at: #dad) = 'picsou'.
-	self deny: (inner keys includes: #dad)
+	self deny: (inner includesKey: #dad)
 ]
