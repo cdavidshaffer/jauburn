@@ -24,12 +24,16 @@ JbArithmeticExpressionParser class >> dependencies [
 { #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticExpression [
 
-	^ arithmeticTerm , '+' asParser trim , arithmeticExpression
+	^ arithmeticTerm , ('+' asParser trim , arithmeticTerm) star
 	  ==> [ :arr | 
-		  JbAdditionNode new
-			  lhs: arr first;
-			  rhs: arr third;
-			  yourself ] / arithmeticTerm
+		  | current |
+		  current := arr first.
+		  arr second do: [ :pair | 
+			  current := JbAdditionNode new
+				             lhs: current;
+				             rhs: pair second;
+				             yourself ].
+		  current ]
 ]
 
 { #category : #'non-terminals' }
@@ -43,11 +47,15 @@ JbArithmeticExpressionParser >> arithmeticFactor [
 { #category : #'non-terminals' }
 JbArithmeticExpressionParser >> arithmeticTerm [
 
-	^ arithmeticFactor , $* asParser trim , arithmeticTerm ==> [ :arr | 
-	  JbMultiplicationNode new
-		  lhs: arr first;
-		  rhs: arr third;
-		  yourself ] / arithmeticFactor
+	^ arithmeticFactor , ($* asParser trim , arithmeticFactor) star
+	  ==> [ :arr | |current|
+		current := arr first.
+		arr second do: [ :pair |
+		  current := JbMultiplicationNode new
+			  lhs: current;
+			  rhs: pair second
+			  yourself].
+		current ]
 ]
 
 { #category : #'non-terminals' }
